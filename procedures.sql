@@ -17,7 +17,7 @@ FROM TotalPoints TP, Weights W;
 
 
 DELIMITER //
-CREATE PROCEDURE printSSN(IN SSNVar VARCHAR(4))
+CREATE PROCEDURE ShowRawScores(IN SSNVar VARCHAR(4))
    BEGIN
       SELECT * FROM Rawscores R WHERE R.SSN = SSNVar;
    END //
@@ -26,7 +26,7 @@ DELIMITER ;
 -- CALL printSSN(1212); Example Call
 
 DELIMITER //
-CREATE PROCEDURE printPercentages(IN SSNVar VARCHAR(4))
+CREATE PROCEDURE ShowPercentages(IN SSNVar VARCHAR(4))
     BEGIN
         SELECT R.SSN, (R.HW1/TP.HW1) * 100 AS HW1Perc, (R.HW2a/TP.HW2a) * 100 AS HW2aPerc, (R.HW2b/TP.HW2b) * 100 AS HW2bPerc, (R.Midterm/TP.Midterm) * 100 AS MidtermPerc, (R.HW3/TP.HW3) * 100 AS HW3Perc, (R.FExam/TP.FExam) * 100 AS FExamPerc, (R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN = SSNVar;
     END //
@@ -61,7 +61,21 @@ DELIMITER ;
 
 -- CALL AllPercentages('OpenSesame');
 
--- SKIPPED PART E (don't understand it)
+DELIMITER //
+CREATE PROCEDURE Stats(IN password VARCHAR(15))
+BEGIN
+IF EXISTS (SELECT P.CurPasswords FROM Passwords P WHERE P.CurPasswords = password) THEN
+    Select * from (Select 'Mean' as Statistic, avg((R.HW1/TP.HW1) * 100) as hw1, avg((R.HW2a/TP.HW2a) * 100) AS hw2a, avg((R.HW2b/TP.HW2b) * 100) AS hw2b, avg((R.Midterm/TP.Midterm) * 100) AS midterm, avg((R.HW3/TP.HW3) * 100) AS hw3, avg((R.FExam/TP.FExam) * 100) AS FExam, avg((R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam)) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN <> '0001' AND R.SSN <> '0002' ORDER BY R.Section, CumAvg) as MeanPercs ;
+    Select * from (Select 'Minimum' as Statistic, min((R.HW1/TP.HW1) * 100) as hw1, min((R.HW2a/TP.HW2a) * 100) AS hw2a, min((R.HW2b/TP.HW2b) * 100) AS hw2b, min((R.Midterm/TP.Midterm) * 100) AS midterm, min((R.HW3/TP.HW3) * 100) AS hw3, min((R.FExam/TP.FExam) * 100) AS FExam, min((R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam)) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN <> '0001' AND R.SSN <> '0002' ORDER BY R.Section, CumAvg) as MinPercs;
+    Select * from (Select 'Maximum' as Statstic, max((R.HW1/TP.HW1) * 100) as hw1, max((R.HW2a/TP.HW2a) * 100) AS hw2a, max((R.HW2b/TP.HW2b) * 100) AS hw2b, max((R.Midterm/TP.Midterm) * 100) AS midterm, max((R.HW3/TP.HW3) * 100) AS hw3, max((R.FExam/TP.FExam) * 100) AS FExam, max((R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam)) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN <> '0001' AND R.SSN <> '0002' ORDER BY R.Section, CumAvg) as MaxPercs;
+    Select * from (Select 'Std. Dev' as Statistic, stddev((R.HW1/TP.HW1) * 100) as hw1, stddev((R.HW2a/TP.HW2a) * 100) AS hw2a, stddev((R.HW2b/TP.HW2b) * 100) AS hw2b, stddev((R.Midterm/TP.Midterm) * 100) AS midterm, stddev((R.HW3/TP.HW3) * 100) AS hw3, stddev((R.FExam/TP.FExam) * 100) AS FExam, stddev((R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam)) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN <> '0001' AND R.SSN <> '0002' ORDER BY R.Section, CumAvg) as StdPercs;
+ELSE
+    SELECT `Sorry, that password is not valid. Try again!`;
+END IF;
+END //
+DELIMITER ;
+
+-- CALL Stats('OpenSesame');
 
 DELIMITER //
 CREATE PROCEDURE ChangeScores(IN password VARCHAR(15), SSN VARCHAR(4), AssignmentName VARCHAR(10), NewScore DECIMAL(5,2))
