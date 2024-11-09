@@ -19,10 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $AssignmentName = $_POST['AssignmentName'];
     $NewGrade = $_POST['NewGrade'];
 
-    // echo "<h1>Your SSN is: " . $ssn . "</h1>";
-    // echo "<h1>Your AssignmentName is: " . $AssignmentName . "</h1>";
-    // echo "<h1>Your NewGrade is: " . $NewGrade. "</h1>";
-
     $result2 = mysqli_query($db, "CALL ChangeScores('".$password."', '".$ssn."', '".$AssignmentName."', '".$NewGrade."')");
 
     if (!$result2) {
