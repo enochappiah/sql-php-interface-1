@@ -14,7 +14,7 @@ CREATE VIEW WtdPts AS
 SELECT ((1/TP.HW1) * W.HW1) AS HW1, ((1/TP.HW2a) * W.HW2a) AS HW2a, ((1/TP.HW2b) * W.HW2b) AS HW2b, ((1/TP.Midterm) * W.Midterm) AS Midterm, ((1/TP.HW3) * W.HW3) AS HW3, ((1/TP.FExam) * W.FExam) AS FExam 
 FROM TotalPoints TP, Weights W;
 
-
+-- Start of HW3
 
 DELIMITER //
 CREATE PROCEDURE ShowRawScores(IN SSNVar VARCHAR(4))
@@ -23,16 +23,17 @@ CREATE PROCEDURE ShowRawScores(IN SSNVar VARCHAR(4))
    END //
 DELIMITER ;
 
--- CALL printSSN(1212); Example Call
+-- CALL ShowRawScores(1212);
 
 DELIMITER //
 CREATE PROCEDURE ShowPercentages(IN SSNVar VARCHAR(4))
     BEGIN
-        SELECT R.SSN, (R.HW1/TP.HW1) * 100 AS HW1Perc, (R.HW2a/TP.HW2a) * 100 AS HW2aPerc, (R.HW2b/TP.HW2b) * 100 AS HW2bPerc, (R.Midterm/TP.Midterm) * 100 AS MidtermPerc, (R.HW3/TP.HW3) * 100 AS HW3Perc, (R.FExam/TP.FExam) * 100 AS FExamPerc, (R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN = SSNVar;
+        SELECT R.SSN, R.FName AS FName, R.LName AS LName,(R.HW1/TP.HW1) * 100 AS HW1Perc, (R.HW2a/TP.HW2a) * 100 AS HW2aPerc, (R.HW2b/TP.HW2b) * 100 AS HW2bPerc, (R.Midterm/TP.Midterm) * 100 AS MidtermPerc, (R.HW3/TP.HW3) * 100 AS HW3Perc, (R.FExam/TP.FExam) * 100 AS FExamPerc, (R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN = SSNVar;
+        SELECT CONCAT('The cumulative course average for ',SubQuery.FName, ' ', SubQuery.LName, ' is ', SubQuery.CumAvg) AS ResMsg FROM (SELECT R.SSN, R.FName AS FName, R.LName AS LName,(R.HW1/TP.HW1) * 100 AS HW1Perc, (R.HW2a/TP.HW2a) * 100 AS HW2aPerc, (R.HW2b/TP.HW2b) * 100 AS HW2bPerc, (R.Midterm/TP.Midterm) * 100 AS MidtermPerc, (R.HW3/TP.HW3) * 100 AS HW3Perc, (R.FExam/TP.FExam) * 100 AS FExamPerc, (R.HW1 * WP.HW1 + R.HW2a * WP.HW2a + R.HW2b * WP.HW2b + R.Midterm * WP.Midterm + R.HW3 * WP.HW3 + R.FExam * WP.FExam) AS CumAvg FROM WtdPts WP, TotalPoints TP, Rawscores R WHERE R.SSN = SSNVar) AS SubQuery;
     END //
 DELIMITER ;
 
--- CALL printPercentages(1212); need to add printing part and change variables to match instructions
+-- CALL ShowPercentages(1212);
 
 DELIMITER //
 CREATE PROCEDURE AllRawScores(IN password VARCHAR(15))
@@ -60,6 +61,7 @@ END //
 DELIMITER ;
 
 -- CALL AllPercentages('OpenSesame');
+-- CALL AllPercentages('Opeesme');
 
 DELIMITER //
 CREATE PROCEDURE Stats(IN password VARCHAR(15))
@@ -81,6 +83,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE ChangeScores(IN password VARCHAR(15), SSN VARCHAR(4), AssignmentName VARCHAR(10), NewScore DECIMAL(5,2))
 BEGIN
+SELECT * FROM Rawscores R WHERE R.SSN = SSN;
 IF EXISTS (SELECT P.CurPasswords FROM Passwords P WHERE P.CurPasswords = password) THEN
     IF AssignmentName = 'HW1' THEN
         UPDATE Rawscores R SET HW1 = NewScore WHERE R.SSN = SSN AND AssignmentName = 'HW1';
@@ -100,6 +103,7 @@ IF EXISTS (SELECT P.CurPasswords FROM Passwords P WHERE P.CurPasswords = passwor
 ELSE
     SELECT `Sorry, that password is not valid. Try again!`;
 END IF;
+SELECT * FROM Rawscores R WHERE R.SSN = SSN;
 END //
 DELIMITER ;
 
